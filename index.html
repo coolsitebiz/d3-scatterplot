@@ -1,0 +1,41 @@
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="./main.css" />
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+        <title id="title">Doping Allegations in Pro Cycling</title>
+    </head>
+    <body>
+        <div id="chart">
+
+        </div>
+
+            <script>
+                    d3.json('cyclist-data.json', (data) => {
+
+                        const w = 600;
+                        const h = 400;
+                        const dataset = data;
+                        const canvas = d3.select("#chart");
+                        const svg = canvas.append("svg")
+                                            .attr("width", w)
+                                            .attr("height", h);
+
+                        svg
+                            .selectAll("circle")
+                            .data(dataset)
+                            .enter()
+                            .append("circle")
+                            .attr("cy", d => h - 100)
+                            .attr("cx", d => 100)
+                            .attr("r" , 5);
+
+
+
+                            
+                        
+                        
+                        
+                    });
+            </script>
+    </body>
+</html>
