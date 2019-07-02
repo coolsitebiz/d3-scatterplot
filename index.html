@@ -5,6 +5,7 @@
         <title id="title">Doping Allegations in Pro Cycling</title>
     </head>
     <body>
+        <h1>Doping in Pro Cycling</h1>
         <div id="chart">
 
         </div>
@@ -12,30 +13,67 @@
             <script>
                     d3.json('cyclist-data.json', (data) => {
 
-                        const w = 600;
-                        const h = 400;
+                        const w = 800;
+                        const h = 600;
                         const dataset = data;
+                        const padding = 30;
                         const canvas = d3.select("#chart");
                         const svg = canvas.append("svg")
-                                            .attr("width", w)
-                                            .attr("height", h);
+                                            .attr("width", w + padding)
+                                            .attr("height", h + padding);
+                        const yearArray = dataset.map(d => parseInt(d.Year));
+                        
+                        var formatTime = d3.timeFormat("%M:%S");
+
+                        const timeArray = dataset.map(d => {
+                            let splitTime = d.Time.split(":");
+                            return new Date(1970, 0, 1, 0, splitTime[0], splitTime[1]);
+                        });
+
+                        const xScale = d3.scaleLinear()
+                                        .domain([d3.min(yearArray), d3.max(yearArray)])
+                                        .range([padding, w - padding]);
+
+                        const yScale = d3.scaleLinear()
+                                        .domain([d3.min(timeArray), d3.max(timeArray)])
+                                        .range([h - padding, padding]);
+
+                        const tooltip = d3.select("body").append("div").attr("id", "tooltip").attr("data-year", ""); 
+
+                        
 
                         svg
                             .selectAll("circle")
                             .data(dataset)
                             .enter()
                             .append("circle")
-                            .attr("cy", d => h - 100)
-                            .attr("cx", d => 100)
-                            .attr("r" , 5);
-
-
-
-                            
-                        
-                        
+                            .attr("class", "dot")
+                            .attr("data-yvalue", (d, i) => timeArray[i])
+                            .attr("data-xvalue", (d, i) => yearArray[i])
+                            .attr("cy", (d, i) => h - yScale(timeArray[i]))
+                            .attr("cx", (d, i)=> xScale(yearArray[i]))
+                            .attr("r" , 7)
+                            .style("opacity", ".5")
+                            .style("fill", (d) => d.Doping === "" ? "blue" : "red")
+                            .on("mouseover", function(d, i) {
+                                d3.select(this).attr("stroke", "black")
+                                tooltip
+                                    .attr("data-year", yearArray[i])
+                                    .style("opacity", ".8")
+                                    .style("left", d3.event.pageX + 5)
+                                    .style("top", d3.event.pageY - 25)
+                                    .style("z-index", "100")
+                                    .html("(" + d.Nationality + ") " + d.Name + " - " +  d.Year + "<br />Time: " + d.Time + "<br />" + d.Doping)
+                            })
+                            .on("mouseout", function(d, i) {
+                                d3.select(this).attr("stroke", "none")
+                                tooltip
+                                    .style("opacity", "0")
+                                    .style("z-index", "-100")
+                            })  
                         
                     });
             </script>
+            <script src="https://cdn.freecodecamp.org/testable-projects-fcc/v1/bundle.js"></script>
     </body>
 </html>
